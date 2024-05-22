@@ -2,42 +2,66 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
-<?php include "inc/head.php"; ?>
+<?php
+$number = $_SERVER['REQUEST_URI']; 
+if (strpos($number, '/statuses/') !== false) {
+	$fulltitle = $site . " / " .$_PROFILE["fullname"] .': ' . mb_strimwidth($_STATUS["content"], 0, 27, "...");
+}
+
+include "inc/head.php"; ?>
 
 <body class="sessions" id="new">
   <style type="text/css">
-    body {
-      background: #9ae4e8 url(/images/bg.gif) fixed no-repeat top left;
-      text-align: center;
-      font: 0.75em/1.5 Helvetica, Arial, sans-serif;
-      color: #333;
-    }
+	  body {
+			color: <?php echo $_PROFILE["text"] ?>;
+			background-color: <?php echo $_PROFILE["bgcolor"] ?>;
+			background: <?php echo $_PROFILE["bgcolor"] ?> url(<?php echo $_PROFILE["bg"] ?>) fixed <?php echo $_PROFILE["bgrepeat"] ?> top left;
+			text-align: center; 
+			font: 0.75em/1.5 Helvetica, Arial, sans-serif; 
+		}
+		
+		a {color: <?php echo $_PROFILE["link"] ?>;}
+		h2.thumb, h2.thumb a {color: <?php echo $_PROFILE["text"] ?>;}
+		
+		
+		
+		#side {
+			background-color: <?php echo $_PROFILE["side"] ?>;
+			border: 1px solid <?php echo $_PROFILE["sideborder"] ?>;
+			
+		}
+		
+
+		#side .notify {border: 1px solid <?php echo $_PROFILE["sideborder"] ?>;}
+		#side .actions {border: 1px solid <?php echo $_PROFILE["sideborder"] ?>;}
+		
   </style>
 
   <div id="container">
+  <?php if (!$_SINGLE) { ?>
     <?php include "inc/header.php"; ?>
     <div id="content">
       <?php if(isset($err)) { ?>
       <p><?php print_r($err); ?></p>
       <?php } ?>
+
       <div class="wrapper">
         <h2 class="thumb">
-          <a href="/account/profile_image/<?=$_PROFILE["username"]?>.jpg"><img alt="Loom-icon" border="0"
-              src="/account/profile_image/<?=$_PROFILE["username"]?>.jpg" alt="<?=$_PROFILE["fullname"]?>" valign="middle" /></a>
+          <a href="/account/profile_image/<?=$_PROFILE["id"]?>.jpg"><img alt="Loom-icon" border="0"
+              src="/account/profile_image/<?=$_PROFILE["id"]?>.jpg" alt="<?=$_PROFILE["fullname"]?>" valign="middle" /></a>
           <?php if(!$_SINGLE) { ?>
           <?=$_PROFILE["username"]?>
           <?php } else { ?>
           <a href="/<?=$_PROFILE["username"]?>"><?=$_PROFILE["username"]?></a>
           <?php } ?><?=isset($_PROFILE["badge"]) ? " <i class=\"badge $_PROFILE[badge]\"></i>" : "" ?>
-          <?php if(isset($_USER) && $_PROFILE["id"] == $_USER["id"] && !$_EDIT) { ?>
-          <span style="font-size: 0.5em; float: right;"><a href="/<?=$_PROFILE["username"]?>/edit">Edit Profile</a></span>
-          <?php } ?>
+          
         </h2>
 
         <div class="hfeed">
-          <?php if(!$_EDIT) { ?>
-          <div class="desc hentry">
-            <div class="entry-title entry-content"><?=parse_bweet($_STATUS["content"])?></div>
+          <?php if ($_PROFILE["flags"] != "18") { ?>
+          <div class="desc">
+		  
+            <p><?=parse_bweet($_STATUS["content"])?></p>
             <p class="meta entry-meta">
               <a href="/<?=$_PROFILE["username"]?>/statuses/<?=$_STATUS["id"]?>" class="entry-date" rel="bookmark"><abbr
                   class="published"><?=time_since($_STATUS["timestamp"])?></abbr></a> from
@@ -45,101 +69,73 @@
               <span id="status_actions_<?=$_STATUS["timestamp"]?>"></span>
             </p>
           </div>
-          <?php } else { ?>
-          <div style="margin-top: 6px;padding-top: 11px;background: url(/images/arr2.gif) no-repeat 14px 0px;">
-            <div class="meta entry-meta" style="background-color: #fff;display: inline-block;width: 100%;">
-              <form action="/edit" enctype="multipart/form-data" method="post" name="f">
-                <fieldset>
-                  <table cellspacing="0">
-                    <tbody>
-                      <tr>
-                        <th><label for="user_name">Full Name:</label></th>
-                        <td><input id="user_name" name="fullname" size="30" type="text" value="<?=$_USER["fullname"]?>">
-                        </td>
-                      </tr>
-                      <tr>
-                        <th><label for="user_bio">Bio:</label></th>
-                        <td><input id="user_bio" name="bio" size="30" type="text" placeholder="My name is <?=$_USER["fullname"]?>..." value="<?=$_USER["bio"]?>">
-                        </td>
-                      </tr>
-                      <tr>
-                        <th><label for="user_location">Location:</label></th>
-                        <td><input id="user_location" name="location" size="30" type="text" placeholder="Washington D.C." value="<?=$_USER["location"]?>">
-                        </td>
-                      </tr>
-                      <tr>
-                        <th><label for="user_web">Web:</label></th>
-                        <td><input id="user_web" name="web" size="30" type="text" placeholder="https://bwitter.me/" value="<?=$_USER["web"]?>">
-                        </td>
-                      </tr>
-                      <tr>
-                        <th><label for="password">Password:</label></th>
-                        <td><input id="password" name="password" type="password">
-                          <small>Required to modify profile.</small></td>
-                      </tr>
-                      <tr>
-                        <th><label for="new_password">New Password:</label></th>
-                        <td><input id="new_password" name="new_password" type="password">
-                          <small>Leave blank to keep current.</small></td>
-                      </tr>
-                      <tr>
-                        <th><label for="password_confirmation">Retype Password:</label></th>
-                        <td><input id="password_confirmation" name="password_confirmation" size="30"
-                            type="password">
-                        </td>
-                      </tr>
-                      <tr>
-                        <th><label for="user_time_zone">Time Zone:</label></th>
-                        <td><select id="user_time_zone" name="time_zone">
-                            <?php foreach($_TIMEZONES as $_TIMEZONE) { ?>
-                            <option value="<?=$_TIMEZONE["id"]?>"><?=$_TIMEZONE["name"]?></option>
-                            <?php } ?>
-                          </select></td>
-                      </tr>
-                      <tr>
-                        <th>
-                          <label for="user_profile_image">
-                            Picture:
-                          </label>
-                        </th>
-                        <td>
-                          <input id="user_profile_image_temp" name="profile_image_temp" type="hidden"><input
-                            id="user_profile_image" name="profile_image" size="30" type="file">
-                          <p><small>(Optional) JPEGs only!<br> If you don’t include a picture, your current profile
-                              picture will be kept.</small></p>
-                        </td>
-                      </tr>
-                      <tr>
-                        <th></th>
-                        <td>
-                          <input type="submit" id="submit" value="Update">
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </fieldset>
-              </form>
-              </form>
-            </div>
-          </div>
-          <?php } ?>
-          <?php if(!$_SINGLE && !$_EDIT && count($_TWEETS) > 0) { ?>
+          
+          <?php if(!$_SINGLE && count($_TWEETS) > 0) { ?>
           <ul class="tabMenu">
-          </ul>
+			<li>
+				<a href="/<?=$_PROFILE["username"]?>/with_friends">With Friends (24h)</a>
+			</li>
+			<li class="active">
+				<a href="/<?=$_PROFILE["username"]?>">Previous</a>
+			</li>
+		  </ul>
           <div class="tab">
             <table class="doing" id="timeline" cellspacing="0">
               <?php foreach($_TWEETS as $_STATUS) { render_bweet($_STATUS); } ?>
             </table>
           </div>
           <?php } ?>
+		  <?php } else { ?>
+		   <div class="desc">
+		  
+            <p>I'm only giving updates to friends <a href="#">add me</a>.</p>
+           
+          </div>
+		  <?php } ?>
         </div>
       </div>
+	  
     </div>
     <hr />
     <?php include "inc/side.php"; ?>
     <hr />
     <hr />
     <?php include "inc/footer.php"; ?>
+	<?php } else { ?>
+	  <div id="content"><div class="wrapper">	
+			
+
+<div id="permalink">
+	
+	
+    	<div class="desc">
+    		<p>
+    		
+    		  <?=parse_bweet($_STATUS["content"])?>
+    		
+    		</p>
+    		<p class="meta">
+    			<span class="meta">
+    				
+    				    					 <?=time_since($_STATUS["timestamp"])?>
+    				    				from web
+					  
+						    				<span id="status_actions_<?=$_STATUS["id"]?>">
+</span>
+
+    			</span>
+    		</p>
+    	</div>
+	
+	<h2 class="thumb">
+		<a href="/<?=$_PROFILE["username"]?>"><img alt="<?=$_PROFILE["username"]?>" src="/account/profile_image/<?=$_PROFILE["id"]?>.jpg"></a>
+		<a href="/<?=$_PROFILE["username"]?>"><?=$_PROFILE["fullname"]?></a>
+	</h2>
+
+		<div id="ad">
+		 <iframe src="https://fazlabz-dev.github.io/openlink/embed.html" width="234" height="60" frameborder="0" name="neolink"></iframe>
+		</div>
+	 <?php }?>
   </div>
 </body>
 

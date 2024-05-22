@@ -79,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 	<div id="container" class="subpage">
 		<h1 id="header">
-			<a href="/" title="Bitter: home" accesskey="1">
-				<img alt="Bitter.com" height="49" src="/images/twitter.png" width="210" />
+			<a href="/" title="<?=$site?>: home" accesskey="1">
+				<img alt="<?=$site?>.com" height="49" src="/images/bwitter.png" width="210" />
 			</a>
 		</h1>
 

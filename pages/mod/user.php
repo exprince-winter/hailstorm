@@ -38,6 +38,7 @@ if(!array_key_exists($args[2], $_IDUSERS)) {
             case TYPE_SUSPENDED:
                 echo 'href="/mod/suspend/'.$u["id"].'" ';
               break;
+			
             case TYPE_VERIFIED:
                 echo 'href="/mod/verify/'.$u["id"].'" ';
               break;

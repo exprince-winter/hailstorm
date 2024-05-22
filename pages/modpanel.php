@@ -12,14 +12,7 @@ $pages = array("home", "reports", "users");
 <?php include "inc/ahead.php"; ?>
 
 <body class="sessions" id="new">
-  <style type="text/css">
-    body {
-      background: #9ae4e8 url(/images/bg.gif) fixed no-repeat top left;
-      text-align: center;
-      font: 0.75em/1.5 Helvetica, Arial, sans-serif;
-      color: #333;
-    }
-  </style>
+  <?php include "inc/css.php"; ?>
 
   <div id="container">
     <?php include "inc/header.php"; ?>
