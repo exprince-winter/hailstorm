@@ -1,15 +1,28 @@
 <?php
 include "inc/main.php";
-header( "Content-type: text/xml");
-
-echo "<?xml version='1.0' encoding='UTF-8'?><rss version='2.0'><channel><title>bwitter.me | RSS</title><link>/</link><description>Newest Bweets</description><language>en-us</language>";
+header( "Content-type: application/rss+xml; charset=utf-8");
+?>
+<?xml version="1.0" encoding="UTF-8">
+<rss version="2.0">
+	<channel>
+		<title>Bwitter public timeline</title>
+		<link>http://<?php echo $_SERVER['HTTP_HOST'];?>/public_timeline</link>
+		<description>Bwitter updates from everyone!</description>
+		<language>en-us</language>
+		<ttl>40</ttl>
+	<?php
 
 foreach($_ATWEETS as $_STATUS) {
   $u = $_STATUS["user"]["username"];
-  $d = htmlspecialchars($_STATUS["origcontent"]);
-  $t = time_since($_STATUS["timestamp"]);
-  echo "<item><title>@$u: $d</title><link>/".$_STATUS["user"]["username"]."/statuses/".$_STATUS["id"]."</link><description>$t</description></item>";
-}
-
-echo "</channel></rss>";
-?>
+  $d = htmlspecialchars($_STATUS["content"]);
+  $t = time_since($_STATUS["timestamp"]); ?>
+  <item>
+      <title><?php echo $u . ": " . $d; ?></title>
+      <description><?php echo $u . ": " . $d; ?></description>
+      <pubDate><?php $t ?></pubDate>
+      <guid>http://<?php echo $_SERVER['HTTP_HOST'] . '/' . $u . '/statuses/' . $_STATUS["id"] ?></guid>
+      <link>http://<?php echo $_SERVER['HTTP_HOST'] . '/' . $u . '/statuses/' . $_STATUS["id"] ?></link>
+    </item>
+    
+<?php } ?>
+</channel></rss>

@@ -14,13 +14,13 @@ function secondsToTime($seconds) {
     return $dtF->diff($dtT)->format('%s seconds');
   }
 }
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && ~$_USER["flags"] & TYPE_SUSPENDED) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' & $_USER["flags"] != TYPE_SUSPENDED) {
   $content = trim($_POST["content"]);
-  if(strlen($content) > 300) {
-    $_SESSION["notice"] = "Bweet cannot be longer than 300 characters.";
+  if(strlen($content) > 140) {
+    $_SESSION["notice"] = "Update cannot be longer than 140 characters.";
     die(header("Location: /"));
   } elseif(strlen($content) < 1) {
-    $_SESSION["notice"] = "Bweet cannot be blank.";
+    $_SESSION["notice"] = "Update cannot be blank.";
     die(header("Location: /"));
   }
 
@@ -39,8 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ~$_USER["flags"] & TYPE_SUSPENDED) 
   $id = $snowflake->id();
   $timestamp = time();
 
-  $stmt = $db->prepare("INSERT INTO `tweets` (`id`, `content`, `user`, `timestamp`) VALUES (?, ?, ?, ?)");
-  if(!$stmt || !$stmt->bind_param("isii", $id, $content, $uid, $timestamp) || !$stmt->execute()) {
+  $stmt = $db->prepare("INSERT INTO `tweets` (`content`, `user`, `timestamp`) VALUES ( ?, ?, ?)");
+  if(!$stmt || !$stmt->bind_param("sii", $content, $uid, $timestamp) || !$stmt->execute()) {
     $_SESSION["notice"] = "Internal server error.\r\n";
     $_SESSION["notice"] .= $db->error;
     die(header("Location: /"));

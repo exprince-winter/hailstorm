@@ -1,5 +1,6 @@
 <?php
 include "inc/main.php";
+if(isset($_USER)) die(header("Location: /home"));
 
 $blacklistednames = array(
   "account" => true,
@@ -63,8 +64,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if($img) {	
   list($width, $height) = getimagesize($file);
   $src = imagecreatefromstring(file_get_contents($file));
-  $dst = imagecreatetruecolor(64, 64);
-  imagecopyresampled($dst, $src, 0, 0, 0, 0, 64, 64, $width, $height);
+  $dst = imagecreatetruecolor(48, 48);
+  imagecopyresampled($dst, $src, 0, 0, 0, 0, 48, 48, $width, $height);
   imagedestroy($src);
   $filepath = pathinfo($file, PATHINFO_DIRNAME);
   $filename = pathinfo($file, PATHINFO_FILENAME).".jpg";
@@ -73,6 +74,10 @@ if($img) {
   imagejpeg($dst, $file);
   imagedestroy($dst);
 }
+
+$query = mysqli_query($db, "SELECT `id` FROM users ORDER BY id DESC");
+$result = mysqli_fetch_assoc($query);
+    $resultstring = $result['id'] + 1;
 	
   if($continue) {
     $stmt = $db->prepare("INSERT INTO `users` (`fullname`, `email`, `username`, `timezone`, `password`) VALUES (?, ?, ?, ?, ?)");
@@ -94,7 +99,11 @@ if($img) {
       $password = password_hash($password, PASSWORD_DEFAULT);
       $stmt->bind_param("sssis", $fullname, $email, $username, $timezone, $password);
       $stmt->execute();
-      if($_FILES["profile_image"]["tmp_name"] && $img) move_uploaded_file($_FILES["profile_image"]["tmp_name"], "account/profile_image/$username.jpg");
+      if($img) {
+        $f = "account/profile_image/$resultstring.jpg";
+        if(file_exists($f)) unlink($f);
+        rename($file, $f);
+      }
       if($stmt->error) $err = $stmt->error; else {
         $_SESSION["notice"] = "Successfully registered!";
         $_SESSION["uid"] = $stmt->insert_id;
@@ -146,7 +155,7 @@ if($img) {
     <?php include "inc/header.php"; ?>
     <div id="content">
       <div class="wrapper">
-        <h2>Create a Free Bwitter Account</h2>
+        <h2>Create a Free <?=$site ?> Account</h2>
         <?php if(isset($err)) { ?>
         <p style="color: red;"><?=$err?></p>
         <?php } ?>
@@ -160,7 +169,7 @@ if($img) {
               <tr>
                 <th><label for="user_username">Create Username:</label></th>
                 <td><input id="user_screen_name" name="username" size="30" type="text" /> <small>For signing in
-                    to Bwitter (no spaces allowed!)</small></td>
+                    to <?=$site ?> (no spaces allowed!)</small></td>
               </tr>
               <tr>
                 <th><label for="user_password">Create Password:</label></th>
@@ -180,9 +189,8 @@ if($img) {
               <tr>
                 <th><label for="user_time_zone">Time Zone:</label></th>
                 <td><select id="user_time_zone" name="time_zone">
-                    <?php foreach($_TIMEZONES as $_TIMEZONE) { ?>
-                    <option value="<?=$_TIMEZONE["id"]?>"><?=$_TIMEZONE["name"]?></option>
-                    <?php } ?>
+                    <?php require_once('inc/options.html'); ?>
+                    
                   </select></td>
               </tr>
               <tr>
@@ -201,13 +209,13 @@ if($img) {
               <tr>
                 <th></th>
                 <td>
-                  <p>By joining Bwitter, you confirm that you are over 13 years of age and accept the <a href="/tos"
+                  <p>By joining <?=$site ?>, you confirm that you are over 13 years of age and accept the <a href="/tos"
                       target="_blank">Terms of Service</a>.</p>
                 </td>
               </tr>
 							<tr>
 								<th><label for="captcha">Prove you're human:</label></th>
-								<td><div id="hcaptcha-demo" class="h-captcha" data-sitekey="7269be27-52c3-496d-99bc-8f30cf6a31ee"></div></td>
+								<td><div id="hcaptcha-demo" class="h-captcha" data-sitekey="sitekey here"></div></td>
 							</tr>
               <tr>
                 <th></th>

@@ -1,11 +1,5 @@
 <?php
 include "inc/main.php";
-if(isset($_USER)) {
-  if(isset($_POST["logout"]))
-    session_destroy();
-  
-  die(header("Location: /"));
-}
 function go() {
   if(isset($_POST["return"]))
     die(header("Location: ".$_POST["return"]));
@@ -35,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $check = password_verify($password, $row["password"]);
     }
     if($check) {
-      if($row["flags"] & TYPE_SUSPENDED) $_SESSION["notice"] = "Account Suspended.";
+      if($row["flags"] === TYPE_SUSPENDED) $_SESSION["notice"] = "Account Suspended.";
       else $_SESSION["uid"] = $row["id"];
       go();
     } else {

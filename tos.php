@@ -5,21 +5,14 @@
 <?php include "inc/head.php"; ?>
 
 <body class="account" id="front">
-  <style type="text/css">
-    body {
-      background: #9ae4e8 url(/images/bg.gif) fixed no-repeat top left;
-      text-align: center;
-      font: 0.75em/1.5 Helvetica, Arial, sans-serif;
-      color: #333;
-    }
-  </style>
+  <?php include "inc/css.php"; ?>
 
   <div id="container" class="subpage">
     <?php include "inc/header.php"; ?>
     <div id="content">
       <div class="wrapper">
         <h2>Terms of Service</h2>
-        <p>By using the Bwitter web site, a service of Bwitter, Inc., you are agreeing to be bound by the following
+        <p>By using the <?=$site ?> web site, a service of <?=$site ?>, Inc., you are agreeing to be bound by the following
           terms and conditions ("Terms of Use").</p>
 
         <h3>Basic Terms</h3>
@@ -27,27 +20,27 @@
           <li>You must be 13 years or older to use this site.</li>
           <li>You are responsible for any activity that occurs under your screen name.</li>
           <li>You are responsible for keeping your password secure.</li>
-          <li>You must not abuse, harass, threaten, impersonate or intimidate other Bwitter users.</li>
-          <li>You may not use the Bwitter service for any illegal or unauthorized purpose. International users agree to
+          <li>You must not abuse, harass, threaten, impersonate or intimidate other <?=$site ?> users.</li>
+          <li>You may not use the <?=$site ?> service for any illegal or unauthorized purpose. International users agree to
             comply with all local laws regarding online conduct and acceptable content.</li>
           <li>You are solely responsible for your conduct and any data, text, information, screen names, links
-            ("Content") that you submit, post, and display on the Bwitter service.</li>
-          <li>You must not modify, adapt or hack Bwitter or modify another website so as to falsely imply that it is
-            associated with Bwitter .</li>
+            ("Content") that you submit, post, and display on the <?=$site ?> service.</li>
+          <li>You must not modify, adapt or hack <?=$site ?> or modify another website so as to falsely imply that it is
+            associated with <?=$site ?> .</li>
           <li>You must not upload or share links leading to any sensitive content (e.g. acts of cruelty, pornography,
             etc...).</li>
           <li>You must not transmit any worms or viruses or any code of a destructive nature.</li>
-          <li>You must not, in the use of Bwitter, violate any laws in your jurisdiction (including but not limited to
+          <li>You must not, in the use of <?=$site ?>, violate any laws in your jurisdiction (including but not limited to
             copyright laws).</li>
         </ol>
-        <p>Violation of any of these agreements will result in the termination of your Bwitter account. While Bwitter
-          prohibits such conduct and content on its site, you understand and agree that Bwitter cannot be responsible
+        <p>Violation of any of these agreements will result in the termination of your <?=$site ?> account. While <?=$site ?>
+          prohibits such conduct and content on its site, you understand and agree that <?=$site ?> cannot be responsible
           for the Content posted on its web site and you nonetheless may be exposed to such materials and that you use
-          the Bwitter service at your own risk.</p>
+          the <?=$site ?> service at your own risk.</p>
 
         <h3>General Conditions</h3>
         <ol>
-          <li>We reserve the right to modify or terminate the Bwitter service for any reason, without notice at any
+          <li>We reserve the right to modify or terminate the <?=$site ?> service for any reason, without notice at any
             time.</li>
           <li>We reserve the right to alter these Terms of Use at any time. If the alterations constitute a material
             change to the Terms of Use, we will notify you via internet mail according to the preference expressed on
@@ -61,19 +54,19 @@
 
         <h3>Copyright (What's Yours is Yours)</h3>
         <ol>
-          <li>We claim no intellectual property rights over the material you provide to the Bwitter service. Your
+          <li>We claim no intellectual property rights over the material you provide to the <?=$site ?> service. Your
             profile and materials uploaded remain yours. You can remove your profile at any time by deleting your
             account. This will also remove any text you have stored in the system.</li>
           <li>We encourage users to contribute their creations to the public domain or consider progressive licensing
             terms.</li>
-          <li>Bwitter undertakes to obey all relevant copyright laws. We will review all claims of copyright
+          <li><?=$site ?> undertakes to obey all relevant copyright laws. We will review all claims of copyright
             infringement received and remove content deemed to have been posted or distributed in violation of any such
             laws. To make a claim, please provide us with the following:
             <ol>
               <li>A physical or electronic signature of the copyright owner or the person authorized to act on its
                 behalf;</li>
               <li>A description of the copyrighted work claimed to have been infringed;</li>
-              <li>A description of the infringing material and information reasonably sufficient to permit Bwitter to
+              <li>A description of the infringing material and information reasonably sufficient to permit <?=$site ?> to
                 locate the material;</li>
               <li>Your contact information, including your address, telephone number, and email;</li>
               <li>A statement by you that you have a good faith belief that use of the material in the manner complained

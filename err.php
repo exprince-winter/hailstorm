@@ -19,7 +19,7 @@ switch($args[0]) {
     switch($args[1]) {
       case "profile_image":
         header("Content-Type: image/jpg");
-        die(readfile("assets/default.jpg"));
+        die(readfile("images/default_image.gif"));
       case "resend_password":
         include "pages/account/resend.php";
         exit;
@@ -58,22 +58,21 @@ switch($args[0]) {
       http_response_code(403);
     }
     break;
-  case "arg":
-    http_response_code(200);
-    include "pages/arg.php";
-    exit;
   case "help":
+  
     if(count($args) > 1) {
       switch($args[1]) {
         case "contact":
           http_response_code(200);
-          include "pages/contact.php";
+          include "pages/help/contact.php";
           exit;
         case "aboutus":
           http_response_code(200);
-          include "pages/about.php";
+          include "pages/help/about.php";
           exit;
-        default:
+        case "":
+		include "pages/help/index.php";
+		exit;
           break;
       }
     }
@@ -85,9 +84,9 @@ $user = strtolower($args[0]);
 if(isset($_LUSERS[$user])) {
   http_response_code(200);
   $_PROFILE = $_LUSERS[$user];
-  $_EDIT = isset($args[1]) && $args[1] == "edit";
-  if($_EDIT && $_USER["id"] != $_PROFILE["id"]) die(header("Location: /$_PROFILE[username]"));
-  if($_PROFILE["flags"] & TYPE_SUSPENDED) {
+  $_WF = isset($args[1]) && $args[1] == "with_friends";
+  if($_WF && $_USER["id"] != $_PROFILE["id"]) die(header("Location: /$_PROFILE[username]"));
+  if($_PROFILE["flags"] === TYPE_SUSPENDED) {
     include "pages/suspended.php";
   } else {
     $_SINGLE = false;
@@ -108,7 +107,7 @@ if(isset($_LUSERS[$user])) {
       }
     } else {
       $_TWEETS = array();
-      $_STATUS = array("content" => "<i>No Bweets.</i>", "timestamp" => time(), "id" => 0);
+      $_STATUS = array("content" => "<i>Haven't updated yet!</i>", "timestamp" => time(), "id" => 0);
     }
     include "pages/profile.php";
   }
