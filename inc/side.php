@@ -30,79 +30,207 @@
     <a href="/signup" class="join">Join for Free!</a><br />
     It&rsquo;s fast and easy!
   </div>
-  <?php } else { ?>
+  
+  
+  
+  <?php } else { 
+  $id = $_USER['id'];
+  
+  $favourget = mysqli_query($db, "SELECT * FROM favour WHERE userid='$id'");
+  $favourcount = mysqli_num_rows($favourget);
+  
+  $tweetget = mysqli_query($db, "SELECT * FROM tweets WHERE user='$id'");
+  $tweetcount = mysqli_num_rows($tweetget);
+  
+  $followingget = mysqli_query($db, "SELECT * FROM followers WHERE userid='$id' AND status=1");
+  $followingcount = mysqli_num_rows($followingget);
+  
+  $followget = mysqli_query($db, "SELECT * FROM followers WHERE personid='$id' AND status=1");
+  $followcount = mysqli_num_rows($followget);
+  
+  ?>
   <div class="msg">
     <h3 style="margin: 0;padding: 0;">Welcome,</h3>
-    <h1 style="margin: 0;padding: 0;"><a href="/<?=$_USER["username"]?>"><?=$_USER["username"]?></a></h1>
+    <strong><a href="/<?=$_USER["username"]?>"><?=$_USER["username"]?></a></strong>
   </div>
-  <p><b>Currently: </b> <i><?=count($_MYTWEETS) > 0 ? $_MYTWEETS[0]["content"] : "N/A"?></i></p>
-  <ul class="featured">
-    <li><strong>Latest Bweeters</strong></li>
-    <?php $_OUSER = isset($_USER) ? $_USER : null; foreach($_LATEST as $_USER) { ?>
-    <li>
-      <a href="/<?=$_USER?>"><img alt="Logo" height="24" src="/account/profile_image/<?=$_USER?>.jpg" width="24" /></a>
-      <a href="/<?=$_USER?>"><?=$_USER?></a>
+  <ul>
+   <li>Currently: <i><?=count($_MYTWEETS) > 0 ? $_MYTWEETS[0]["content"] : "N/A"?></i></li>
+   <br>
+   <li>0 Direct Messages</li>
+   <li><?=$favourcount?> Favorite<?php if ($favourcount != "1") { echo 's'; }?></li>
+   <li><?=$followingcount?> Friend<?php if ($followingcount != "1") { echo 's'; }?></li>
+   <li><?=$followcount?> Follower<?php if ($followcount != "1") { echo 's'; }?></li>
+   <li><?=$tweetcount?> Update<?php if ($tweetcount != "1") { echo 's'; }?></li>
+  </ul>
+  
+  <?php if(isset($_USER) && ($_USER["flags"] & TYPE_MODERATOR || $_USER["flags"] & TYPE_ADMIN)) { ?>
+  <ul class="admin">
+  <strong>Secret stuff</strong>
+    <?php if($_USER["flags"] & TYPE_ADMIN) { ?>
+    <li><a href="/admin">Admin panel</a></li>
+    <?php } ?>
+    <li><a href="/mod">Mod panel</a>
+      <?php if(count($_REPORTS) > 0) { ?>
+      <small class="b"><?=count($_REPORTS)?></small>
+      <?php } ?>
     </li>
-    <?php } $_USER = $_OUSER; ?>
+  </ul>
+  
+  <?php } ?>
+  <div id="friends">
+  <?php
+	$sql = "SELECT personid FROM followers WHERE userid='$id' AND status=1";
+    $result = $db->query($sql);
+
+
+
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) { 
+	$peopleid = $row["personid"];
+	
+	$peoplesql = "SELECT * FROM `users` WHERE `id` = '$peopleid'";
+    $peoplesqlr = $db->query($peoplesql);
+	if ($peoplesqlr->num_rows > 0) {
+    while($rowed = $peoplesqlr->fetch_assoc()) {
+		$username = $rowed["username"];	
+		$title = $rowed["fullname"];		
+		}
+		}
+
+
+
+
+	
+	?>
+		
+		<a href="/<?=$username?>" rel="contact" title="<?=$title?>">
+			<img alt="<?=$title?>" height="24" src="/account/profile_image/<?=$peopleid?>.jpg" width="24" />
+		</a>
+		
+		<?php
+	}
+	} $db->close();
+?>
+</div>
+  <?php } ?>
+  
+  <?php
+  if (isset($feat)) {?>
+  <ul class="featured">
+    <li><strong>Featured</strong></li>
+    <!-- currently hardcoded, ill fix it later-->
+    <li>
+      <a href="/prince_winter"><img alt="Logo" height="24" src="/account/profile_image/1.jpg" width="24" /></a>
+      <a href="/prince_winter">Winter</a>
+    </li>
+    
   </ul>
   <?php } ?>
-  <a href="https://discord.gg/XmmMZrp">Join our Discord Server!</a>
-  <?php if(isset($_USER)) { ?>
-  <form action="/sessions" method="post" style="display:inline;"><input type="submit" name="logout" value="Log Out"
-      id="submit"></form>
-  <?php } ?>
-  <?php } else { ?>
+  
+  <?php } else { 
+  $profile = $_PROFILE["id"];
+  
+  $favourget = mysqli_query($db, "SELECT * FROM favour WHERE userid='$profile'");
+  $favourcount = mysqli_num_rows($favourget);
+  
+  $tweetget = mysqli_query($db, "SELECT * FROM tweets WHERE user='$profile'");
+  $tweetcount = mysqli_num_rows($tweetget);
+  
+  $followingget = mysqli_query($db, "SELECT * FROM followers WHERE userid='$profile' AND status=1");
+  $followingcount = mysqli_num_rows($followingget);
+  
+  $followget = mysqli_query($db, "SELECT * FROM followers WHERE personid='$profile' AND status=1");
+  $followcount = mysqli_num_rows($followget);
+  
+  
+  
+  
+  ?>
   <div class="msg">
     <h3 style="margin: 0;padding: 0;">About</h3>
-    <h1 style="margin: 0;padding: 0;"><?=$_PROFILE["username"]?></h1>
+    <strong><?=$_PROFILE["username"]?></strong>
   </div>
-  <p><b>Name: </b> <i><?=$_PROFILE["fullname"]?></i></p>
+  <ul class="about">
+   <li>Name: <?=$_PROFILE["fullname"]?></li>
 
   <?php if(!empty($_PROFILE["bio"])) { ?>
-  <p><b>Bio: </b> <i><?=$_PROFILE["bio"]?></i></p>
+  <li>Bio: <?=$_PROFILE["bio"]?></li>
   <?php } ?>
 
   <?php if(!empty($_PROFILE["location"])) { ?>
-  <p><b>Location: </b> <i><?=$_PROFILE["location"]?></i></p>
+  <li>Location: <?=$_PROFILE["location"]?></li>
   <?php } ?>
 
   <?php if(!empty($_PROFILE["web"])) { ?>
-  <p><b>Web: </b> <i><a href="<?=$_PROFILE["web"]?>"><?=$_PROFILE["web"]?></a></i></p>
+  <li>Web: <a href="<?=$_PROFILE["web"]?>"><?=$_PROFILE["web"]?></a></li>
   <?php } ?>
-
-  <?php } ?>
-</div>
-<?php if(!isset($_USER) || ~$_USER["flags"] & TYPE_ADMIN) { ?>
-<div id="side">
-  <!-- ADVERTISEMENT -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-  <ins class="adsbygoogle" style="display:inline-block;width:162px;height:233px"
-    data-ad-client="ca-pub-8808361409175246" data-ad-slot="3546673826"></ins>
-  <script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
-  <!-- END ADVERTISEMENT -->
-  <div style="display:none;" id="plsnoad">
-    <h1>Please read</h1>
-    <br>
-    <p>We need your help to support bwitter.me.</p>
-    <p>Please consider disabling your ad blocker while visiting this website so that we can continue to
-      provide this content to you free of charge.</p>
-    <br>
-    <p>For details on turning off your ad blocker, or to add bwitter.me to your whitelist,
-      please read these instructions:</p>
-    <p><a
-        href="https://help.getadblock.com/support/solutions/articles/6000055743-how-to-disable-adblock-on-specific-sites">How
-        to Whitelist on AdBlock</a></p>
-    <p><a href="https://github.com/gorhill/uBlock/wiki/How-to-whitelist-a-web-site#click-the-big-power-button">How to
-        Whitelist on uBlock</a></p>
-    <br>
-    <p>Best regards,<br>The Bwitter Team.</p>
+  </ul>
+  
+  <ul>
+	<li><a href="/favourings?id=<?=$_PROFILE["id"]?>"><?=$favourcount?> Favorite<?php if ($favourcount != "1") { echo 's'; }?></a></li>
+	<li><?=$followingcount?> Friend<?php if ($followingcount != "1") { echo 's'; }?></li>
+	<li><?=$followcount?> Follower<?php if ($followcount != "1") { echo 's'; }?></li>
+	<li><?=$tweetcount?> Update<?php if ($tweetcount != "1") { echo 's'; }?></li>
+</ul>
+  
+  <?php if(isset($_USER) && $_PROFILE["username"] != $_USER["username"]) { 
+    $id = $_USER["id"];
+	 $sql = "SELECT personid FROM `followers` WHERE `userid` = '$id' AND `personid` = '$profile' AND `status` = 1 ";
+    $result = $db->query($sql);
+	
+	if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) { 
+	$peopleid = $row["personid"];
+	}
+	}
+  ?>
+  <div class="actions">
+   <strong>Actions</strong>
+   <br>
+   <?php if (empty($peopleid)) { ?>
+   <small><a href="/t/friendships/create?id=<?=$_PROFILE["id"]?>">add</a> <?=$_PROFILE["username"]?></small>
+   <?php } else { ?>
+   <small><a href="/t/friendships/destroy?id=<?=$_PROFILE["id"]?>">leave</a> <?=$_PROFILE["username"]?></small>
+   <?php } ?>
   </div>
-  <script defer>
-    if (typeof window.adblockActive == "undefined") {
-      document.getElementById("plsnoad").style.display = "inline-block";
-    }
-  </script>
+  <?php }
+  ?>
+	<div id="friends">
+  <?php
+	$sql = "SELECT personid FROM followers WHERE userid='$profile' AND status=1";
+    $result = $db->query($sql);
+
+
+
+if ($result->num_rows > 0) {
+    while($row = $result->fetch_assoc()) { 
+	$peopleid = $row["personid"];
+	
+	$peoplesql = "SELECT * FROM `users` WHERE `id` = '$peopleid'";
+    $peoplesqlr = $db->query($peoplesql);
+	if ($peoplesqlr->num_rows > 0) {
+    while($rowed = $peoplesqlr->fetch_assoc()) {
+		$username = $rowed["username"];	
+		$title = $rowed["fullname"];		
+		}
+		}
+
+
+
+
+	
+	?>
+		
+		<a href="/<?=$username?>" rel="contact" title="<?=$title?>">
+			<img alt="<?=$title?>" height="24" src="/account/profile_image/<?=$peopleid?>.jpg" width="24" />
+		</a>
+		
+		<?php
+	}
+	} $db->close();
+?>
 </div>
-<?php } ?>
+<?php  }
+  ?>
+  
+</div>

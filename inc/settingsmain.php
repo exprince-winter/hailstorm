@@ -4,14 +4,13 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-require "vendor/autoload.php";
+require "./../vendor/autoload.php";
 
 define("TYPE_USER", 1);
 define("TYPE_SUSPENDED", 2);
 define("TYPE_VERIFIED", 4);
 define("TYPE_MODERATOR", 8);
 define("TYPE_ADMIN", 16);
-
 
 
 $_FLAGS = array(
@@ -88,6 +87,13 @@ if(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== "off" || (isset($_SERVER['H
   $_SERVER['HTTPS'] = "off";
 }
 
+if($_SERVER['SERVER_NAME'] == "bwitter.cf") {
+  if($_SERVER['HTTPS'] == "on")
+    die(header("Location: http://bwitter.me/"));
+  else
+    die(header("Location: https://bwitter.me/"));
+}
+
 function device_time($dateFormatString = NULL) { 
   $responseTime = microtime(true);
   $ch = file_get_contents('https://ipinfo.io/'.$_SERVER["REMOTE_ADDR"].'/json/');
@@ -151,17 +157,31 @@ function parse_bweet($content) {
     $content = preg_replace($url, '<br><iframe src="https://'.$site.'/embed.php?v=$3&a=0" style="margin-top: 5px;" width="460" height="258"></iframe>', $content);
   }
 
-  
+  $url = '/(?:(?:https?):\/\/(?:www\.|dev\.)?)?bwitter\.me\/[a-zA-Z0-9_]{1,20}\/statuses\/([0-9]+)$/';
+  $content = preg_replace_callback($url, function($match) use($_ATWEETS) {
+    if (isset($_ATWEETS[$match[1]])) {
+      $tweet = $_ATWEETS[$match[1]];
+      $html = '<fieldset style="border: 1px solid black;margin:0;padding: 0px 5px 5px 5px;background:#fff;">';
+      $html .= '<legend><a href="'.$match[0].'"><img src="/account/profile_image/'.$tweet["user"]["username"].'.jpg" style="height:1em;width:1em;">'.$tweet["user"]["username"];
+      $html .= '</a>';
+      if(isset($tweet["user"]["badge"]))
+        $html .= '&nbsp;<i class="badge '.$tweet["user"]["badge"].'"></i>';
+      $html .= '</legend>';
+      $html .= $tweet["content"];
+      $html .= '</fieldset>';
+      return $html;
+    } else {
+      return $match[0];
+    }
+  }, $content);
 
   // @user
   $mention = '/(?<=^|\s)(@([A-Za-z0-9_]{1,20}))/';
   $content = preg_replace_callback($mention, function($match) use($_USERS) {
     if (isset($_USERS[strtolower($match[2])])) {
       return '<a href="/'.$match[2].'" title="'.$match[0].'">'.$match[0].'</a>';
-	  $replyedto = $match[2];
     } else {
       return $match[0]; 
-	  $replyedto = null;
     }
   }, $content);
   
@@ -174,14 +194,14 @@ function parse_bweet($content) {
 
 function callCount() { 
   static $calls = "0"; 
-  return $calls++;
+  $calls++;
   }
+  
     
   
 function render_bweet($_STATUS) {
   global $_PROFILE;
   global $_USER;
-  global $db;
   
   
   
@@ -189,20 +209,17 @@ function render_bweet($_STATUS) {
   
   <tr class="<?php
   $number = callCount();
-if ($number % 2) { 
-echo 'even';
+if (!$number / 2) { 
+echo 'odd'; 
 } else {
-	
-	echo 'odd'; 
+	echo 'even';
 	}
    ?> hentry" id="status_<?=$_STATUS["timestamp"]?>">
-   <?php if (!isset($_PROFILE)) {?>
 	<td class="thumb">
 		<a href="<?=$_STATUS["user"]["username"]?>">
-			<img alt="<?=$_STATUS["user"]["username"]?>" src="/account/profile_image/<?=$_STATUS["user"]["id"]?>.jpg">
+			<img alt="<?=$_STATUS["user"]["username"]?>" src="/account/profile_image/<?=$_STATUS["user"]["username"]?>.jpg">
 		</a>
 	</td>
-   <?php } ?>
 	<td>	
 		<strong>
 			<a href="<?=$_STATUS["user"]["username"]?>" title="<?=$_STATUS["user"]["username"]?>"><?=$_STATUS["user"]["username"]?></a>
@@ -213,28 +230,8 @@ echo 'even';
 				
 		<span class="meta">
 						  <a href="/<?=$_STATUS["user"]["username"]?>/statuses/<?=$_STATUS["id"]?>"><?=time_since($_STATUS["timestamp"])?></a>
-						from 
-						<?php if ($_STATUS["methodlink"] != null) {
-							echo '<a href="' . $_STATUS["methodlink"] . '">' . $_STATUS["method"] . '</a>';
-							} else { 
-							echo $_STATUS["method"];
-							}?> 
+						from web 
 			<span id="status_actions_<?=$_STATUS["id"]?>">
-			<?php if (isset($_USER)) {	
-			$tweet = $_STATUS["id"];
-			$id = $_USER["id"];
-			$checkfavour = mysqli_query($db, "SELECT * FROM `favour` WHERE `tweetid` = '$tweet' AND `userid` = '$id'");
-			$checkedfavour = mysqli_num_rows($checkfavour);
-			if ($checkedfavour == "" or $checkedfavour == 0) { ?>
-				<a href="/t/favour/create?id=<?=$tweet;?>">
-					<img src="/images/icon_star_empty.gif" alt="icon_star_empty">
-				</a>
-			<?php } else { ?>
-				<a href="/t/favour/destroy?id=<?=$tweet;?>">
-					<img src="/images/icon_star_full.gif" alt="icon_star_full">
-				</a>
-			<?php } 
-			} ?>
 </span>
 
 		</span>
@@ -258,7 +255,7 @@ function safeReferrer() {
 
 function verifyCaptcha($response) {
   $options = array(
-    'secret' => "## insert hcaptcha thing here ##",
+    'secret' => "ES_ff5ad95e2ebc44c1b068d8a23c0803c6",
     'response' => $response
   );
   $curl = curl_init();
@@ -317,7 +314,7 @@ if(isset($_SESSION["uid"])) {
   $_USER = $res->fetch_array();
 }
 
-if(isset($_USER) && $_USER["flags"] === TYPE_SUSPENDED) {
+if(isset($_USER) && $_USER["flags"] & TYPE_SUSPENDED) {
   unset($_SESSION);
   session_unset();
   session_destroy();
@@ -352,7 +349,7 @@ $res = $stmt->get_result();
 $_LATEST = array();
 while($row = $res->fetch_array()) {
   if(count($_LATEST) >= 5) break;
-  if($row["flags"] & TYPE_SUSPENDED) $_LATEST[] = $row["username"];
+  if(~$row["flags"] & TYPE_SUSPENDED) $_LATEST[] = $row["username"];
 }
 
 $stmt = $db->prepare("SELECT * FROM `timezones`");
@@ -375,7 +372,6 @@ $_IDUSERS = array();
 $_EUSERS = array();
 $_VUSERS = array();
 $_SUSERS = array();
-$_HUSERS = array();
 while($row = $res->fetch_array()) {
   if($row["flags"] & TYPE_VERIFIED) {
     $row["badge"] = "verified";
@@ -384,11 +380,10 @@ while($row = $res->fetch_array()) {
   $_LUSERS[strtolower($row["username"])] = $row;
   $_EUSERS[strtolower($row["email"])] = $row;
   $_IDUSERS[$row["id"]] = $row;
-  if($row["flags"] === TYPE_VERIFIED)
+  if($row["flags"] & TYPE_VERIFIED)
     $_VUSERS[$row["username"]] = $row;
-  if($row["flags"] === TYPE_SUSPENDED)
+  if($row["flags"] & TYPE_SUSPENDED)
     $_SUSERS[$row["username"]] = $row;
-
 }
 
 $stmt = $db->prepare("SELECT * FROM `tweets` ORDER BY `timestamp` DESC");
@@ -405,7 +400,6 @@ while($row = $res->fetch_array()) {
     $user = $_IDUSERS[$uid];
     $user[6] = $user["email"] = $user[8] = $user["password"] = null;
     if($user["flags"] & TYPE_SUSPENDED) continue;
-	
   } else continue;
 
   $_ATWEETS[$row["id"]] = $row;

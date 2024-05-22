@@ -5,16 +5,12 @@
 <div id="footer">
   <h3>Footer</h3>
   <ul>
-    <li class="first">&copy; 2007-<?=date("Y")?> Bwitter</li>
-    <li><a href="/help/aboutus">About Us</a></li>
-    <li><a href="/help/contact">Contact</a></li>
-    <!--<li><a href="/blog">Blog</a></li>
-    <li><a href="/downloads">Downloads</a></li>
-    <li><a href="/help/api">API</a></li>
-    <li><a href="/help" target="_blank">Help</a></li>
-    <li><a href="/help/jobs">Jobs</a></li>-->
-    <li><a href="/tos">TOS</a></li>
-    <!--<li><a href="/help/privacy">Privacy</a></li>-->
-  </ul>
+		<li class="first">© 2022-<?php echo date("Y") . " " . $site; ?></li>
+		<li><a href="/help/aboutus">About Us</a></li>
+		<li><a href="/help/contact">Contact</a></li>
+		<li><a href="/blog">Blog</a></li>
+		<li><a href="/help/api">API</a></li>
+		<li><a href="/help">Help</a></li>
+		<li><a href="/tos">Terms of Service</a></li>
+	</ul>
 </div>
-<script defer>twemoji.parse(document.body)</script>

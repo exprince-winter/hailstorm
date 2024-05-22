@@ -4,13 +4,13 @@
   for($p=1, $i=0; $i < $totalPages; $p++, $i++) {
     if($page == $p) {
       // current page shown as bold, no link
-      $tmp[] = "<b>{$p}</b>";
+      $tmp[] = "";
     } else {
       if($p == 1) {
         $url = parse_url($_SERVER["REQUEST_URI"])["path"];
-        $tmp[] = "<a href=\"$url\">{$p}</a>";
+        $tmp[] = "";
       } else {
-        $tmp[] = "<a href=\"?page={$p}\">{$p}</a>";
+        $tmp[] = "";
       }
     }
   }
@@ -32,8 +32,6 @@
     if($page > 1) {
       // display 'Prev' link
       echo "<a href=\"?page=" . ($page - 1) . "\">&laquo; Prev</a> | ";
-    } else {
-      echo "&laquo; Prev | ";
     }
 
     $lastlink = 0;
@@ -41,7 +39,7 @@
       if($i > $lastlink + 1) {
         echo " ... "; // where one or more links have been omitted
       } elseif($i) {
-        echo " | ";
+        echo "";
       }
       echo $link;
       $lastlink = $i;
@@ -49,9 +47,9 @@
 
     if($page <= $lastlink) {
       // display 'Next' link
-      echo " | <a href=\"?page=" . ($page + 1) . "\">Next &raquo;</a>";
+      echo "<a href=\"?page=" . ($page + 1) . "\">Next &raquo;</a>";
     } else {
-      echo " | Next &raquo;";
+      echo "";
     }
 
     echo "</div>\n\n";
